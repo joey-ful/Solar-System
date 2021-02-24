@@ -1,8 +1,9 @@
+import Toggle from './toggle.js';
 import Planet from './planet.js';
 import {PlanetInfo} from './planetInfo.js';
 import Background from './background.js';
 
-class App {
+export default class App {
   constructor() {
     this.stage = document.createElement('div');
     this.stage.setAttribute('id', 'stage');
@@ -16,6 +17,7 @@ class App {
     this.resize();
 
     new Background(400, this.backctx, this.stageWidth, this.stageHeight);
+    new Toggle();
     this.createPlanets();
     this.animate();
   }

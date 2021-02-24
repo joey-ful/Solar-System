@@ -20,3 +20,72 @@ canvas {
   width: 100%;
   height: 100%;
 }
+
+ul {
+  position: absolute;
+  top: 30px;
+  right: 15px;
+  padding: 0;
+  margin: 0;
+  border: 1px solid white;
+  padding: 10px 25px 10px 0;
+}
+
+li {
+  list-style: none;
+  margin: 10px;
+}
+
+li input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.label {
+  cursor: pointer;
+}
+
+.slider {
+  display: inline-block;
+  position: relative;
+  width: 48px;
+  height: 26px;
+  background-color: #4a545e;
+  cursor: pointer;
+  border-radius: 15px;
+}
+
+.text {
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 0.9rem;
+  position: relative;
+  bottom: 1px;
+  left: 10px;
+  color: white;
+}
+
+.slider:before {
+  display: inline-block;
+  position: relative;
+  top: 4px;
+  left: 4px;
+  content: "";
+  height: 18px;
+  width: 18px;
+  background-color: white;
+  transition: all .4s ease;
+  border-radius: 50%;
+}
+
+li input:checked+.slider {
+  background-color: rgb(64, 217, 255);
+}
+
+li input:checked+.slider:before {
+  transform: translateX(22px);
+}
+
+li input:checked~.text {
+  color: rgb(64, 217, 255);
+}
