@@ -1,14 +1,23 @@
 export default class Background {
-  constructor(starNumber, ctx, stageWidth, stageHeight) {
+  constructor(starNumber, stageWidth, stageHeight) {
     this.starNumber = starNumber;
     this.stageWidth = stageWidth;
     this.stageHeight = stageHeight;
-
-    this.colorBackground(ctx);
-    this.fillStars(ctx);
+    this.color = '#4D5769';
   }
 
-  colorBackground(ctx) {
+  draw(ctx, type) {
+    if (type === 'back') {
+      this.color = this.createGradient(ctx);
+      this.colorBackground(ctx);
+      this.fillStars(ctx);
+    } else {
+      this.color = '#4D5769';
+      this.colorBackground(ctx);
+    }
+  }
+
+  createGradient(ctx) {
     let gradient = ctx.createRadialGradient(
       this.stageWidth / 2,
       this.stageHeight / 2,
@@ -21,7 +30,11 @@ export default class Background {
     gradient.addColorStop(0, '#214568');
     gradient.addColorStop(1, '#162133');
 
-    ctx.fillStyle = gradient;
+    return gradient;
+  }
+
+  colorBackground(ctx) {
+    ctx.fillStyle = this.color;
     ctx.fillRect(0, 0, this.stageWidth, this.stageHeight);
   }
 
