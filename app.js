@@ -1,4 +1,4 @@
-import Toggle from './toggle.js';
+import Options from './options.js';
 import Planet from './planet.js';
 import {PlanetInfo} from './planetInfo.js';
 import Background from './background.js';
@@ -17,10 +17,10 @@ export default class App {
     window.addEventListener('resize', this.resize.bind(this));
     this.resize();
 
-    this.toggleOptions = new Toggle().toggleOptions;
+    this.options = new Options();
 
     this.handleBackgroundToggle();
-    this.handleToggle();
+    this.handleOptions();
     this.createPlanets();
     this.animate();
   }
@@ -58,7 +58,7 @@ export default class App {
     let backgroundToggle = document.getElementById('background');
 
     backgroundToggle.addEventListener('change', () => {
-      if (this.toggleOptions.background) {
+      if (backgroundToggle.checked) {
         this.background.draw(this.backctx, 'back');
       } else {
         this.background.draw(this.backctx, 'base');
@@ -66,54 +66,20 @@ export default class App {
     });
   }
 
-  handleToggle() {
-    for (let option in this.toggleOptions) {
-      let toggle = document
-        .getElementById(option)
-        .addEventListener('change', () => {
-          this.toggleOptions.option = !this.toggleOptions.option;
+  handleOptions() {
+    for (let option in this.options) {
+      let tag = document.getElementById(option);
 
-          let dragTypes = ['no-drag', 'drag', 'elastic-drag'];
-          let shadowTypes = ['no-shadow', 'shadow', 'round-shadow'];
-
-          if (dragTypes.includes(option)) {
-            this.handleTypes(option, dragTypes);
-          } else if (shadowTypes.includes(option)) {
-            this.handleTypes(option, shadowTypes);
-          }
-        });
+      tag.addEventListener('change', () => {
+        if (tag.type === 'checkbox') {
+          this.options[option] = !this.options[option];
+        } else {
+          document.getElementsByName(tag.name).forEach((button) => {
+            this.options[button.id] = button.checked;
+          });
+        }
+      });
     }
-  }
-
-  handleTypes(option, Types) {
-    Types.forEach(type => {
-      if (type !== option) {
-        document.getElementById(type).checked = false;
-        this.toggleOptions[type] = false;
-      }
-    });
-
-    let count = 0;
-    
-    Types.forEach(type => {
-      if (!this.toggleOptions[type]) {
-        count++;
-      }
-    });
-
-    if (count === Types.length) {
-      document.getElementById(Types[0]).checked = true;
-      this.toggleOptions[Types[0]] = true;
-    }
-  }
-
-  trueToggleExists(Types) {
-    Types.forEach((option) => {
-      if (this.toggleOptions.option) {
-        return true;
-      }
-    });
-    return false;
   }
 
   createPlanets() {
@@ -150,24 +116,10 @@ export default class App {
         this.ctx.save();
         this.ctx.shadowColor = planet.color;
         this.ctx.shadowBlur = planet.radius * 1.5;
-        planet.update(
-          this.ctx,
-          this.shadowctx,
-          this.pathctx,
-          this.toggleOptions,
-          this.stageWidth,
-          this.stageHeight
-        );
+        planet.update(this.ctx, this.shadowctx, this.pathctx, this.options);
         this.ctx.restore();
       } else {
-        planet.update(
-          this.ctx,
-          this.shadowctx,
-          this.pathctx,
-          this.toggleOptions,
-          this.stageWidth,
-          this.stageHeight
-        );
+        planet.update(this.ctx, this.shadowctx, this.pathctx, this.options);
       }
     });
   }

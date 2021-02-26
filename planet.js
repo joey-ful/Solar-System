@@ -20,42 +20,34 @@ export default class Planet {
     this.img = new Image();
   }
 
-  update(ctx, shadowctx, pathctx, toggleOptions, stageWidth, stageHeight) {
+  update(ctx, shadowctx, pathctx, options) {
     this.theta += this.velocity;
+    this.options = options;
 
-    if (!toggleOptions.drag && !toggleOptions['elastic-drag']) {
-      this.noDragOption();
-    } else if (toggleOptions.drag && !toggleOptions['elastic-drag']) {
+    this.setDragOption(options);
+    this.setShadowOption(shadowctx, options);
+    this.setPlanetArtOption(ctx, options);
+    this.setOrbitPathOption(pathctx, options);
+  }
+
+  setDragOption(options) {
+    if (options['no-drag']) {
+      this.noDragUpdate();
+    } else if (options['basic-drag']) {
       this.interaction();
-      this.dragOption();
-    } else if (!toggleOptions.drag && toggleOptions['elastic-drag']) {
+      this.dragUpdate();
+    } else if (options['elastic-drag']) {
       this.interaction();
-      this.elasticDragOption();
-    }
-
-    if (toggleOptions['round-shadow']) {
-      this.drawRoundShadow(shadowctx, toggleOptions);
-    } else if (toggleOptions.shadow) {
-      this.drawShadow(shadowctx, toggleOptions);
-    }
-
-    if (toggleOptions['planet-art']) {
-      this.drawArt(ctx);
-    } else {
-      this.drawCircle(ctx);
-    }
-
-    if (toggleOptions['orbit-path']) {
-      this.drawPath(pathctx);
+      this.elasticDragUpdate();
     }
   }
 
-  noDragOption() {
+  noDragUpdate() {
     this.x = this.star.x + this.orbitRadius * Math.cos(this.theta);
     this.y = this.star.y + this.orbitRadius * Math.sin(this.theta);
   }
 
-  dragOption() {
+  dragUpdate() {
     if (this.clicked) {
       this.x = this.mouse.x;
       this.y = this.mouse.y;
@@ -65,7 +57,7 @@ export default class Planet {
     }
   }
 
-  elasticDragOption() {
+  elasticDragUpdate() {
     if (this.clicked) {
       this.x += (this.mouse.x - this.x) * 0.05;
       this.y += (this.mouse.y - this.y) * 0.05;
@@ -80,55 +72,20 @@ export default class Planet {
     }
   }
 
-  drawCircle(ctx){
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
-    ctx.fillStyle = this.color;
-    ctx.fill();
-    ctx.closePath();
-  }
-
-  drawArt(ctx) {
-    ctx.beginPath();
-
-    let width = this.radius * 2;
-    let imgX = this.x - this.radius;
-    let imgY = this.y - this.radius;
-
-    if (this.name === 'saturn') {
-      width = this.radius * 4;
-      imgX -= this.radius;
-    } else if (this.name === 'uranus') {
-      width = this.radius * 4.2;
-      imgX -= this.radius * 1.1;
+  setShadowOption(shadowctx, options) {
+    if (options['round-shadow']) {
+      this.drawRoundShadow(shadowctx, options);
+    } else if (options['rectangular-shadow']) {
+      this.drawShadow(shadowctx, options);
     }
-
-    ctx.drawImage(this.img, imgX, imgY, width, this.radius * 2);
-    this.img.src = `./srcs/${this.name}.png`;
-    ctx.closePath();
   }
-  
-  drawShadow(shadowctx, toggleOptions) {
+
+  drawShadow(shadowctx, options) {
     if (this.name !== 'sun' && this.name !== 'moon') {
-      let extralength = 17;
-      if (this.name === 'venus') {
-        extralength += 2;
-      } else if (this.name === 'earth') {
-        extralength += 17;
-      } else if (this.name === 'mars') {
-        extralength += 18;
-      } else if (this.name === 'jupiter') {
-        extralength += 5;
-      } else if (this.name === 'saturn') {
-        extralength += 6;
-      } else if (this.name === 'uranus') {
-        extralength += 4;
-      }
-      this.toX = this.x + (this.radius + extralength) * Math.cos(this.theta);
-      this.toY = this.y + (this.radius + extralength) * Math.sin(this.theta);
+      this.findShadowEndPoint();
 
       shadowctx.beginPath();
-      if (toggleOptions.background) {
+      if (options['background']) {
         shadowctx.strokeStyle = 'rgba(33, 69, 104, 0.3)';
       } else {
         shadowctx.strokeStyle = 'rgba(77, 87, 105, 0.4)';
@@ -142,9 +99,36 @@ export default class Planet {
     }
   }
 
-  drawRoundShadow(shadowctx, toggleOptions) {
+  findShadowEndPoint() {
+    let extralength = this.setShadowLength();
+
+    this.toX = this.x + (this.radius + extralength) * Math.cos(this.theta);
+    this.toY = this.y + (this.radius + extralength) * Math.sin(this.theta);
+  }
+
+  setShadowLength() {
+    let extralength = 17;
+
+    if (this.name === 'venus') {
+      extralength += 2;
+    } else if (this.name === 'earth') {
+      extralength += 17;
+    } else if (this.name === 'mars') {
+      extralength += 18;
+    } else if (this.name === 'jupiter') {
+      extralength += 5;
+    } else if (this.name === 'saturn') {
+      extralength += 6;
+    } else if (this.name === 'uranus') {
+      extralength += 4;
+    }
+
+    return extralength;
+  }
+
+  drawRoundShadow(shadowctx, options) {
     if (this.name !== 'sun' && this.name !== 'moon') {
-      this.findXYdistance(toggleOptions);
+      this.findXYdistance(options);
       this.findShadowCurveDepth();
       this.findShadowPoints();
 
@@ -171,7 +155,7 @@ export default class Planet {
         this.Ay + this.shadowLengthY
       );
       shadowctx.lineTo(this.Ax, this.Ay);
-      if (toggleOptions.background) {
+      if (options.background) {
         shadowctx.fillStyle = 'rgba(33, 69, 104, 0.3)';
       } else {
         shadowctx.fillStyle = 'rgba(77, 87, 105, 0.4)';
@@ -181,10 +165,10 @@ export default class Planet {
     }
   }
 
-  findXYdistance(toggleOptions) {
+  findXYdistance(options) {
     let radius = this.radius;
 
-    if (toggleOptions['planet-art']) {
+    if (options['planet-art']) {
       if (this.name === 'saturn') {
         radius = this.radius * 0.8;
       }
@@ -220,6 +204,48 @@ export default class Planet {
     this.Dy = this.Ay + this.shadowLengthY;
   }
 
+  setPlanetArtOption(ctx, options) {
+    if (options['planet-art']) {
+      this.drawArt(ctx);
+    } else {
+      this.drawCircle(ctx);
+    }
+  }
+
+  drawArt(ctx) {
+    ctx.beginPath();
+
+    let width = this.radius * 2;
+    let imgX = this.x - this.radius;
+    let imgY = this.y - this.radius;
+
+    if (this.name === 'saturn') {
+      width = this.radius * 4;
+      imgX -= this.radius;
+    } else if (this.name === 'uranus') {
+      width = this.radius * 4.2;
+      imgX -= this.radius * 1.1;
+    }
+
+    ctx.drawImage(this.img, imgX, imgY, width, this.radius * 2);
+    this.img.src = `./srcs/${this.name}.png`;
+    ctx.closePath();
+  }
+
+  drawCircle(ctx) {
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
+    ctx.fillStyle = this.color;
+    ctx.fill();
+    ctx.closePath();
+  }
+
+  setOrbitPathOption(pathctx, options) {
+    if (options['orbit-path']) {
+      this.drawPath(pathctx);
+    }
+  }
+
   drawPath(pathctx) {
     pathctx.beginPath();
     pathctx.arc(
@@ -234,7 +260,7 @@ export default class Planet {
     pathctx.strokeStyle = this.color;
     pathctx.stroke();
     pathctx.closePath();
-}
+  }
 
   interaction() {
     this.canvas = document.getElementById('shadowcanvas');
@@ -250,10 +276,12 @@ export default class Planet {
 
     let radius = this.radius;
 
-    if (this.name === 'saturn') {
-      radius = this.radius * 4;
-    } else if (this.name === 'uranus') {
-      radius = this.radius * 4.2;
+    if (this.options['planet-art']) {
+      if (this.name === 'saturn') {
+        radius = this.radius * 4;
+      } else if (this.name === 'uranus') {
+        radius = this.radius * 4.2;
+      }
     }
 
     if (
@@ -261,6 +289,8 @@ export default class Planet {
       Math.abs(this.offsetY) <= this.radius
     ) {
       this.clicked = true;
+      this.mouse.x = e.clientX - this.offsetX;
+      this.mouse.y = e.clientY - this.offsetY;
       this.canvas.addEventListener('mousemove', this.onMouseMove);
     }
   };

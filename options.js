@@ -1,50 +1,75 @@
-export default class Toggle {
+export default class Options {
   constructor() {
-    this.createToggleMenu();
+    return this.createToggleMenu();
   }
 
   createToggleMenu() {
-    this.toggleOptions = {
-      'no-drag': true,
-      'drag': false,
-      'elastic-drag': false,
-      'no-shadow': true,
-      'shadow': false,
-      'round-shadow': false,
+    this.features = {
       'background': false,
       'planet-art': false,
       'orbit-path': false,
-    };
-
-    let dragTypes = ['no-drag', 'drag', 'elastic-drag'];
-    let shadowTypes = ['no-shadow', 'shadow', 'round-shadow'];
-
-    let toggleMenu = document.createElement('ul');
-    document.body.appendChild(toggleMenu);
-
-    for (let option in this.toggleOptions) {
-      let list = document.createElement('li');
-      toggleMenu.appendChild(list);
-
-      if (dragTypes.includes(option)) {
-        this.createRadio(list, option, dragTypes);
-      } else if (shadowTypes.includes(option)) {
-        this.createRadio(list, option, shadowTypes);
-      } else {
-        this.createToggle(list, option);
-      }
     }
 
-    return this.toggleOptions;
+    let dragTypes = {
+      'no-drag': true,
+      'basic-drag': false,
+      'elastic-drag': false,
+    }
+
+    let shadowTypes = {
+      'no-shadow': true,
+      'rectangular-shadow': false,
+      'round-shadow': false,
+    }
+
+    let toggleMenu = document.createElement('ul');
+    toggleMenu.setAttribute('id', 'toggleMenu');
+    document.body.appendChild(toggleMenu);
+
+    let title = document.createElement('h1');
+    toggleMenu.appendChild(title);
+    title.innerHTML = 'Animation Effects'
+
+    let separator = document.createElement('div');
+    separator.setAttribute('class', 'separator');
+    document.body.appendChild(separator);
+    
+    this.createRadioList('drag', dragTypes, toggleMenu);
+    this.createRadioList('shadow', shadowTypes, toggleMenu);
+    this.createToggleList(this.features, toggleMenu);
+
+    return {...this.features, ...dragTypes, ...shadowTypes};
   }
 
-  createRadio(list, optionName, types) {
-    let radiobox = document.createElement('container');
-    radiobox.setAttribute('class', 'radiobox');
-    
-    
+  createToggleList(options, toggleMenu) {
+    for (let option in options) {
+      let list = document.createElement('li');
+      toggleMenu.appendChild(list);
+      this.createToggle(list, option);
+    }
+  }
 
+  createRadioList(type, options, toggleMenu) {
+    let menulist = document.createElement('ul');
+    menulist.setAttribute('class', 'radiobox');
+    toggleMenu.appendChild(menulist);
 
+    let title = document.createElement('h2');
+    if (type === 'drag') {
+      title.innerHTML = 'Drag Type';
+    } else if (type === 'shadow') {
+      title.innerHTML = 'Shadow Type';
+    }
+    menulist.appendChild(title);
+
+    for (let option in options) {
+      let list = document.createElement('li');
+      menulist.appendChild(list);
+      this.createRadio(list, option, type);
+    }
+  }
+
+  createRadio(list, optionName, type) {
     let label = document.createElement('label');
     label.setAttribute('class', 'radio-label');
     label.setAttribute('for', optionName);
@@ -52,15 +77,12 @@ export default class Toggle {
 
     let input = document.createElement('input');
     input.setAttribute('type', 'radio');
+    input.setAttribute('name', type);
     input.setAttribute('id', optionName);
     label.appendChild(input);
     if (optionName === 'no-drag' || optionName === 'no-shadow') {
       input.checked = true;
     }
-
-    input.addEventListener('change', () => {
-      this.toggleOptions[input.id] = !this.toggleOptions[input.id];
-    })
 
     let radio = document.createElement('span');
     radio.setAttribute('class', 'radio');
@@ -85,10 +107,6 @@ export default class Toggle {
     if (optionName === 'no-drag' || optionName === 'no-shadow') {
       input.checked = true;
     }
-
-    input.addEventListener('change', () => {
-      this.toggleOptions[input.id] = !this.toggleOptions[input.id];
-    })
 
     let slider = document.createElement('span');
     slider.setAttribute('class', 'slider');
