@@ -228,7 +228,7 @@ export default class Planet {
     }
 
     ctx.drawImage(this.img, imgX, imgY, width, this.radius * 2);
-    this.img.src = `./srcs/${this.name}.png`;
+    this.img.src = `./images/${this.name}.png`;
     ctx.closePath();
   }
 
