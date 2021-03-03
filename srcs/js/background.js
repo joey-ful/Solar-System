@@ -1,12 +1,13 @@
 export default class Background {
-  constructor(starNumber, stageWidth, stageHeight) {
+  constructor(starNumber) {
     this.starNumber = starNumber;
-    this.stageWidth = stageWidth;
-    this.stageHeight = stageHeight;
     this.color = '#4D5769';
   }
 
-  draw(ctx, type) {
+  draw(ctx, type, stageWidth, stageHeight) {
+    this.stageWidth = stageWidth;
+    this.stageHeight = stageHeight;
+    
     if (type === 'back') {
       this.color = this.createGradient(ctx);
       this.colorBackground(ctx);

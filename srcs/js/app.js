@@ -9,10 +9,11 @@ export default class App {
     this.stage.setAttribute('id', 'stage');
     document.body.appendChild(this.stage);
 
-    this.stage.appendChild(this.createAndAppendCanvas('back'));
-    this.stage.appendChild(this.createAndAppendCanvas('path'));
-    this.stage.appendChild(this.createAndAppendCanvas(''));
-    this.stage.appendChild(this.createAndAppendCanvas('shadow'));
+    this.canvasType = ['back', 'path', '', 'shadow'];
+
+    this.canvasType.forEach((type) =>
+      this.stage.appendChild(this.createCanvas(type))
+    );
 
     window.addEventListener('resize', this.resize.bind(this));
     this.resize();
@@ -20,12 +21,15 @@ export default class App {
     this.options = new Options();
 
     this.handleBackgroundToggle();
+    window.addEventListener('resize', () => {
+      this.drawBackground(document.getElementById('background'));
+    });
     this.handleOptions();
     this.createPlanets();
     this.animate();
   }
 
-  createAndAppendCanvas(name) {
+  createCanvas(name) {
     this[`${name}canvas`] = document.createElement('canvas');
     this[`${name}canvas`].setAttribute('id', `${name}canvas`);
 
@@ -35,35 +39,44 @@ export default class App {
   }
 
   resize() {
-    this.stageWidth = document.body.clientWidth;
-    this.stageHeight = document.body.clientHeight;
+    this.stageWidth = window.innerWidth;
+    this.stageHeight = window.innerHeight;
+    this.ratio = window.devicePixelRatio;
 
-    this.sizeCanvasAndScaleCtx('back');
-    this.sizeCanvasAndScaleCtx('');
-    this.sizeCanvasAndScaleCtx('path');
-    this.sizeCanvasAndScaleCtx('shadow');
+    this.canvasType.forEach(type => this.scaleCanvas(type));
   }
 
-  sizeCanvasAndScaleCtx(name) {
-    this[`${name}canvas`].width = this.stageWidth * 2;
-    this[`${name}canvas`].height = this.stageHeight * 2;
+  scaleCanvas(name) {
+    this[`${name}canvas`].width = this.stageWidth * this.ratio;
+    this[`${name}canvas`].height = this.stageHeight * this.ratio;
 
-    this[`${name}ctx`].scale(2, 2);
+    this[`${name}canvas`].style.width = this.stageWidth + 'px';
+    this[`${name}canvas`].style.height = this.stageHeight + 'px';
+
+    this[`${name}ctx`].scale(this.ratio, this.ratio);
   }
 
   handleBackgroundToggle() {
-    this.background = new Background(400, this.stageWidth, this.stageHeight);
-    this.background.draw(this.backctx, 'base');
+    this.background = new Background(400);
+    this.background.draw(this.backctx, 'base', this.stageWidth, this.stageHeight);
 
     let backgroundToggle = document.getElementById('background');
 
     backgroundToggle.addEventListener('change', () => {
-      if (backgroundToggle.checked) {
-        this.background.draw(this.backctx, 'back');
-      } else {
-        this.background.draw(this.backctx, 'base');
-      }
+      this.drawBackground(backgroundToggle);
     });
+
+    // window.addEventListener('resize', () => {
+    //   this.drawBackground(backgroundToggle);
+    // })
+  }
+
+  drawBackground(backgroundToggle) {
+    if (backgroundToggle.checked) {
+      this.background.draw(this.backctx, 'back', this.stageWidth, this.stageHeight);
+    } else {
+      this.background.draw(this.backctx, 'base', this.stageWidth, this.stageHeight);
+    }
   }
 
   handleOptions() {
