@@ -1,4 +1,4 @@
-## Solar System
+## Solar System in Vanilla JS
 
 - Customizable Animation Effects
   - Select a drag type
@@ -9,3 +9,5 @@
 - Visit [Solar System Step by Step](https://github.com/joey-ful/SolarSystem-StepByStep) to check out the animation buildup
 
 ![customize](https://user-images.githubusercontent.com/52592748/109260250-268e4f00-7841-11eb-9fa3-fb931f009a87.gif)
+
+[Check it out in React](https://github.com/joey-ful/ReactSolarSystem)
